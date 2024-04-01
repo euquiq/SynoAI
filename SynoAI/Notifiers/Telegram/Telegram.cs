@@ -14,6 +14,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Telegram.Bot;
+using Telegram.Bot.Types;
 
 namespace SynoAI.Notifiers.Telegram
 {
@@ -60,14 +61,16 @@ namespace SynoAI.Notifiers.Telegram
                         // The photo base URL hasn't been specified, which means we need to send the file ourselves
                         using (FileStream fileStream = processedImage.GetReadonlyStream())
                         {
-                            await bot.SendPhotoAsync(ChatID, fileStream, message);
+                            InputFile archivo = InputFile.FromStream(fileStream, processedImage.FileName);
+                            await bot.SendPhotoAsync(ChatID, archivo, null, message);
                         }
                         // TODO - Add a config to disable the sending of the image?
-                    } 
-                    else 
+                    }
+                    else
                     {
                         string photoUrl = $"{PhotoBaseURL}/{camera.Name}/{processedImage.FileName}";
-                        await bot.SendPhotoAsync(ChatID, photoUrl, message);
+                        InputFile archivo = InputFile.FromString(photoUrl);
+                        await bot.SendPhotoAsync(ChatID, archivo, null, message);
                     }
 
                     logger.LogInformation("{cameraName}: Telegram notification sent successfully", cameraName);
